@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>타임 & 리액션 챌린지</title>
+        <style>
+            * {
+                box-sizing: border-box
+            }
+
+            :root {
+                --green: #006659;
+                --mint: #e7f7f3;
+                --dark: #123b36;
+                --lime: #d9f36b;
+                --coral: #ff806f;
+                --bg: #f4f8f7;
+                --white: #fff
+            }
+
+            body {
+                margin: 0;
+                font-family: "Pretendard","Noto Sans KR",Arial,sans-serif;
+                background: radial-gradient(circle at 10% 10%,#e4f5f0 0,transparent 32%),radial-gradient(circle at 90% 20%,#fff0df 0,transparent 28%),var(--bg);
+                color: var(--dark);
+                min-height: 100vh;
+                overflow: hidden
+            }
+
+            button {
+                font: inherit;
+                cursor: pointer
+            }
+
+            .app {
+                max-width: 1450px;
+                margin: auto;
+                padding: 14px 34px 10px;
+                height: 100vh;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 7px
+            }
+
+            .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px
+            }
+
+            .brand {
+                font-size: 18px;
+                font-weight: 900;
+                letter-spacing: -.6px
+            }
+
+            .brand span {
+                color: var(--green)
+            }
+
+            .status {
+                background: #fff;
+                border: 2px solid #dceae7;
+                border-radius: 999px;
+                padding: 7px 14px;
+                font-weight: 800;
+                font-size: 13px
+            }
+
+            .hero {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-height: 104px
+            }
+
+            .title {
+                font-size: clamp(32px,4vw,56px);
+                font-weight: 1000;
+                letter-spacing: -2.5px;
+                margin-top: 0
+            }
+
+            .title em {
+                font-style: normal;
+                color: var(--green)
+            }
+
+            .best {
+                width: 460px;
+                margin-right: 7%;
+                padding: 2px 8px 0;
+                transform: translateY(2px);
+                text-align: center;
+                background: transparent;
+                border: 0;
+                box-shadow: none
+            }
+
+            .bestTitle {
+                font-size: 26px;
+                font-weight: 1000;
+                color: var(--green);
+                margin-bottom: 5px;
+                letter-spacing: -.5px
+            }
+
+            .bestGrid {
+                display: block
+            }
+
+            .bestCard {
+                display: none;
+                background: transparent;
+                border: 0;
+                border-radius: 0;
+                padding: 0
+            }
+
+            .bestCard.show {
+                display: block
+            }
+
+            .bestCard span {
+                display: block;
+                font-size: 11px;
+                font-weight: 1000;
+                color: #7b918d;
+                letter-spacing: .4px
+            }
+
+            .bestCard b {
+                display: block;
+                font-size: clamp(56px,4.2vw,68px);
+                line-height: 1;
+                color: var(--dark);
+                margin-top: 3px;
+                letter-spacing: -2px
+            }
+
+            .bestCard small {
+                display: block;
+                font-size: 12px;
+                color: #7f9691;
+                font-weight: 800;
+                margin-top: 5px
+            }
+
+            .bestActions {
+                margin-top: 4px;
+                display: flex;
+                justify-content: center
+            }
+
+            .bestReset {
+                border: 0;
+                background: transparent;
+                color: #839692;
+                text-decoration: underline;
+                font-size: 10px;
+                font-weight: 800;
+                cursor: pointer;
+                padding: 2px 0
+            }
+
+            .bestRow b {
+                font-size: 18px;
+                color: var(--dark)
+            }
+
+            .bestRow b.new {
+                animation: pop .7s ease
+            }
+
+            @keyframes pop {
+                0% {
+                    transform: scale(1)
+                }
+
+                45% {
+                    transform: scale(1.18)
+                }
+
+                100% {
+                    transform: scale(1)
+                }
+            }
+
+            .nav {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex: none
+            }
+
+            .nav button {
+                border: 0;
+                background: #e6efed;
+                color: #58716d;
+                border-radius: 15px;
+                padding: 11px 18px;
+                font-weight: 900
+            }
+
+            .nav button.on {
+                background: var(--green);
+                color: white;
+                box-shadow: 0 7px 18px #00665925
+            }
+
+            .game {
+                display: none;
+                position: relative;
+                overflow: hidden;
+                flex: 1;
+                min-height: 0;
+                border-radius: 32px;
+                background: rgba(255,255,255,.9);
+                border: 2px solid #fff;
+                box-shadow: 0 18px 45px #234b4413;
+                padding: 12px 42px;
+                align-items: center;
+                justify-content: center;
+                text-align: center
+            }
+
+            .game.active {
+                display: flex
+            }
+
+            .game:before {
+                content: "";
+                position: absolute;
+                width: 220px;
+                height: 220px;
+                border-radius: 50%;
+                background: #dff5ee;
+                right: -70px;
+                top: -70px
+            }
+
+            .game:after {
+                content: "";
+                position: absolute;
+                width: 140px;
+                height: 140px;
+                border-radius: 50%;
+                background: #fff0e8;
+                left: -55px;
+                bottom: -55px
+            }
+
+            .content {
+                position: relative;
+                z-index: 1;
+                width: min(1050px,100%)
+            }
+
+            .eyebrow {
+                display: inline-flex;
+                padding: 7px 13px;
+                border-radius: 999px;
+                background: var(--mint);
+                color: var(--green);
+                font-weight: 1000;
+                font-size: 14px;
+                letter-spacing: .5px
+            }
+
+            h2 {
+                font-size: clamp(25px,3vw,42px);
+                margin: 8px 0 4px;
+                letter-spacing: -1.5px
+            }
+
+            .desc {
+                font-size: 15px;
+                color: #718783;
+                margin-bottom: 9px
+            }
+
+            .dual {
+                display: grid;
+                grid-template-columns: 1fr 1.35fr;
+                gap: 14px;
+                align-items: stretch
+            }
+
+            .panel {
+                background: #f7fbfa;
+                border: 2px solid #e5efed;
+                border-radius: 20px;
+                padding: 14px 18px
+            }
+
+            .label {
+                font-size: 13px;
+                font-weight: 900;
+                color: #7b918d
+            }
+
+            .big {
+                font-size: clamp(44px,6vw,78px);
+                font-weight: 1000;
+                letter-spacing: -4px;
+                line-height: 1;
+                margin-top: 8px
+            }
+
+            .measuring-indicator {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                height: 18px;
+                margin-top: 5px;
+                color: #7b918d;
+                font-size: 12px;
+                font-weight: 900;
+                opacity: 0;
+                transition: opacity .2s
+            }
+
+            .measuring-indicator.active { opacity: 1 }
+
+            .live {
+                font-size: clamp(54px,8vw,98px);
+                font-weight: 1000;
+                letter-spacing: -6px;
+                line-height: 1;
+                color: var(--green);
+                margin-top: 8px
+            }
+
+            .targetCard {
+                background: linear-gradient(135deg,#effaf7,#fff);
+                border: 3px solid #d8ece7
+            }
+
+            .records {
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin: 6px 0 0;
+                min-height: 30px
+            }
+
+            .record {
+                position: relative;
+                background: white;
+                border: 1px solid #dce8e5;
+                border-radius: 14px;
+                padding: 9px 15px;
+                font-size: 17px;
+                font-weight: 1000;
+                min-width: 120px;
+                cursor: help
+            }
+
+            .record.good {
+                border-color: #b8dcd4;
+                color: var(--green);
+                background: #f0faf7
+            }
+
+            .record .detail {
+                position: absolute;
+                left: 50%;
+                bottom: calc(100% + 8px);
+                transform: translateX(-50%) translateY(4px);
+                opacity: 0;
+                pointer-events: none;
+                white-space: nowrap;
+                background: #183b36;
+                color: #fff;
+                border-radius: 10px;
+                padding: 7px 10px;
+                font-size: 12px;
+                font-weight: 800;
+                transition: .15s;
+                box-shadow: 0 8px 20px #234b4430;
+                z-index: 20
+            }
+
+            .record:hover .detail {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0)
+            }
+
+            .primary {
+                border: 0;
+                background: var(--green);
+                color: #fff;
+                border-radius: 17px;
+                padding: 14px 30px;
+                font-size: 19px;
+                font-weight: 1000;
+                min-width: 220px;
+                box-shadow: 0 10px 22px #00665925;
+                transition: .15s
+            }
+
+            .primary:hover {
+                transform: translateY(-2px)
+            }
+
+            .primary.accent {
+                background: #ee7868
+            }
+
+            .secondary {
+                border: 2px solid #d8e5e2;
+                background: white;
+                color: #526e69;
+                border-radius: 14px;
+                padding: 10px 16px;
+                font-weight: 900
+            }
+
+            .actions {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-top: 7px
+            }
+
+            .hint {
+                margin-top: 4px;
+                color: #94a5a1;
+                font-size: 12px
+            }
+
+            .result {
+                font-size: clamp(30px,4vw,54px);
+                font-weight: 1000;
+                margin: 12px
+            }
+
+            .sub {
+                font-size: 18px;
+                color: #6d817d
+            }
+
+            .hide {
+                display: none!important
+            }
+
+            .reactionBox {
+                padding: 16px;
+                border-radius: 24px;
+                background: #132f2b;
+                color: white;
+                min-height: 150px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center
+            }
+
+            .reactionBox.go {
+                background: var(--green)
+            }
+
+            .reactionBox.early {
+                background: #e77868
+            }
+
+            .reactionWord {
+                font-size: clamp(48px,7vw,90px);
+                font-weight: 1000;
+                letter-spacing: -5px
+            }
+
+            .reactionSub {
+                font-size: 18px;
+                opacity: .75
+            }
+
+            .finalRank {
+                font-size: clamp(48px,8vw,100px);
+                font-weight: 1000
+            }
+
+            .score {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+                margin: 20px 0
+            }
+
+            .scorebox {
+                background: #f7fbfa;
+                border: 2px solid #e3eeeb;
+                border-radius: 18px;
+                padding: 13px 25px;
+                min-width: 160px
+            }
+
+            .scorebox b {
+                display: block;
+                font-size: 30px;
+                margin-top: 4px
+            }
+
+            .footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: #839692;
+                font-size: 13px
+            }
+
+            .resetAll {
+                border: 0;
+                background: transparent;
+                color: #839692;
+                text-decoration: underline;
+                cursor: pointer;
+                font-weight: 700
+            }
+
+            @media(max-width: 800px) {
+                body {
+                    overflow:auto
+                }
+
+                .app {
+                    height: auto;
+                    min-height: 100vh;
+                    padding: 18px 20px
+                }
+
+                .hero {
+                    min-height: 120px
+                }
+
+                .best {
+                    width: 290px;
+                    margin-right: 0;
+                    transform: none
+                }
+
+                .bestTitle {
+                    font-size: 16px
+                }
+
+                .bestCard b {
+                    font-size: 34px
+                }
+
+                .title {
+                    font-size: 34px
+                }
+
+                .game {
+                    padding: 24px;
+                    min-height: 520px
+                }
+
+                .dual {
+                    grid-template-columns: 1fr
+                }
+
+                .live {
+                    font-size: 70px
+                }
+
+                .footer {
+                    gap: 10px;
+                    flex-wrap: wrap
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main class="app">
+            <header>
+                <div class="header">
+                    <div class="brand">
+                        TIME & REACTION CHALLENGE
+                    </div>
+                    <div class="status" id="status">READY</div>
+                </div>
+                <div class="hero">
+                    <div class="title">
+                        TIME <em>&</em>
+                        REACTION<br>
+                        <span style="font-size:.55em;letter-spacing:-1px">CHALLENGE</span>
+                    </div>
+                    <div class="best" aria-live="polite">
+                        <div class="bestTitle">🏆 TODAY’S BEST</div>
+                        <div class="bestGrid">
+                            <div class="bestCard" id="bestTimeCard">
+                                <span>GAME 1 · TIME</span>
+                                <b id="bestTime">--</b>
+                                <small>최고 기록</small>
+                            </div>
+                            <div class="bestCard" id="bestReactionCard">
+                                <span>GAME 2 · REACTION</span>
+                                <b id="bestReaction">--</b>
+                                <small>최고 기록</small>
+                            </div>
+                        </div>
+                        <div class="bestActions">
+                            <button class="bestReset" id="resetToday">오늘 기록 새로 시작</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <nav class="nav">
+                <button class="on" id="nav1">① 랜덤 타임</button>
+                <button id="nav2">② 반응속도</button>
+            </nav>
+            <section class="game active" id="g1">
+                <div class="content">
+                    <div class="eyebrow">GAME 01 · TIME SENSE</div>
+                    <h2>랜덤한 시간을 정확하게 맞혀라!</h2>
+                    <div class="desc">목표 시간은 매번 달라집니다. 감각만 믿고 STOP!</div>
+                    <div class="dual">
+                        <div class="panel targetCard">
+                            <div class="label">TARGET TIME</div>
+                            <div class="big" id="target">--.---</div>
+                            <div class="label">SEC</div>
+                        </div>
+                        <div class="panel">
+                            <div class="label">YOUR TIME</div>
+                            <div class="live measuring-value" id="live">???</div>
+                            <div class="measuring-indicator" id="measureIndicator" aria-hidden="true"><b>측정 중</b></div>
+                            <div class="label">SEC</div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" id="g1btn">START</button>
+                    </div>
+                    <div class="result hide" id="g1res"></div>
+                    <div class="sub" id="g1sub"></div>
+                    <div class="records" id="records"></div>
+                    <div class="hint">SPACE : 시작 / 정지 · 오차가 작을수록 높은 등급</div>
+                </div>
+            </section>
+            <section class="game" id="g2">
+                <div class="content">
+                    <div class="eyebrow">GAME 02 · REACTION</div>
+                    <h2>순간의 반응속도를 겨뤄라!</h2>
+                    <div class="desc">초록색으로 바뀌는 순간, 최대한 빠르게 STOP!</div>
+                    <div class="reactionBox" id="reactionBox">
+                        <div class="reactionWord" id="reaction">READY</div>
+                        <div class="reactionSub" id="g2guide">준비되면 START를 눌러주세요.</div>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" id="g2btn">START</button>
+                    </div>
+                    <div class="records" id="reactionRecords"></div>
+                    <div class="result hide" id="g2res"></div>
+                    <div class="sub" id="g2sub"></div>
+                    <div class="hint">SPACE : 시작 / 반응</div>
+                </div>
+            </section>
+            <section class="game" id="final">
+                <div class="content">
+                    <div class="eyebrow">FINAL RESULT</div>
+                    <h2>오늘의 챌린지 결과</h2>
+                    <div class="finalRank" id="rank">RESULT</div>
+                    <div class="result" id="total"></div>
+                    <div class="score">
+                        <div class="scorebox">
+                            GAME 1<b id="s1">-</b>
+                        </div>
+                        <div class="scorebox">
+                            GAME 2<b id="s2">-</b>
+                        </div>
+                    </div>
+                    <button class="primary" id="reset">NEXT PLAYER</button>
+                </div>
+            </section>
+            <footer class="footer">
+                <span>직원 운영 · 화면 클릭 또는 SPACE</span>
+                <button class="resetAll" id="clearAllRecords">기록 지우기</button>
+            </footer>
+        </main>
+        <script>
+            const $ = id => document.getElementById(id);
+            let game = 1
+              , state = 'idle'
+              , raf = null
+              , timer = null
+              , start = 0
+              , target = 0
+              , g1score = 0
+              , g2score = 0
+              , records = []
+              , reactionRecords = []
+              , bestTimeError = null
+              , bestReaction = null;
+            const BEST_KEY = 'usc_time_reaction_best_v2';
+            function todayKey() {
+                return new Date().toLocaleDateString('sv-SE')
+            }
+            function loadBest() {
+                try {
+                    const d = JSON.parse(localStorage.getItem(BEST_KEY) || 'null');
+                    if (d && d.date === todayKey()) {
+                        bestTimeError = d.time ?? null;
+                        bestReaction = d.reaction ?? null;
+                        records = Array.isArray(d.records) ? d.records : [];
+                        reactionRecords = Array.isArray(d.reactionRecords) ? d.reactionRecords : []
+                    }
+                } catch (e) {}
+                ;renderBest()
+            }
+            function saveBest() {
+                localStorage.setItem(BEST_KEY, JSON.stringify({
+                    date: todayKey(),
+                    time: bestTimeError,
+                    reaction: bestReaction,
+                    records,
+                    reactionRecords
+                }))
+            }
+            function renderBest() {
+                $('bestTime').textContent = bestTimeError === null ? '--' : bestTimeError.toFixed(3) + '초';
+                $('bestReaction').textContent = bestReaction === null ? '--' : bestReaction.toFixed(3) + '초';
+                showBestForGame(game)
+            }
+            function showBestForGame(n) {
+                $('bestTimeCard').classList.toggle('show', n === 1);
+                $('bestReactionCard').classList.toggle('show', n === 2)
+            }
+            function resetTodayBest() {
+                bestTimeError = null;
+                bestReaction = null;
+                saveBest();
+                renderBest();
+                setStatus('NEW DAY RECORD');
+            }
+
+            const rand = (a, b) => a + Math.random() * (b - a);
+            function setStatus(x) {
+                $('status').textContent = x
+            }
+            function nav(n) {
+                game = n;
+                state = 'idle';
+                cancelAnimationFrame(raf);
+                clearTimeout(timer);
+                $('g1').classList.toggle('active', n === 1);
+                $('g2').classList.toggle('active', n === 2);
+                $('final').classList.remove('active');
+                $('nav1').classList.toggle('on', n === 1);
+                $('nav2').classList.toggle('on', n === 2);
+                showBestForGame(n);
+                setStatus('READY');
+                if (n === 1)
+                    init1();
+                else
+                    init2()
+            }
+            function init1() {
+                cancelAnimationFrame(raf);
+                target = Number(rand(2, 9).toFixed(3));
+                $('target').textContent = target.toFixed(3);
+                $('live').textContent = '???';
+                $('measureIndicator').classList.remove('active');
+                $('g1btn').textContent = 'START';
+                $('g1res').classList.add('hide');
+                $('g1sub').textContent = '';
+                renderRecords();
+                state = 'idle'
+            }
+            function loop1() {
+                const e = (performance.now() - start) / 1000;
+                $('live').textContent = '???';
+                raf = requestAnimationFrame(loop1)
+            }
+            function start1() {
+                if (state === 'idle' || state === 'done') {
+                    if (state === 'done') {
+                        target = Number(rand(2, 9).toFixed(3));
+                        $('target').textContent = target.toFixed(3);
+                        $('g1res').classList.add('hide');
+                        $('g1sub').textContent = '';
+                        $('live').textContent = '0.000'
+                    }
+                    state = 'run';
+                    start = performance.now();
+                    $('g1btn').textContent = 'STOP';
+                    $('live').textContent = '???';
+                    $('measureIndicator').classList.add('active');
+                    setStatus('MEASURING');
+                    loop1()
+                } else if (state === 'run') {
+                    cancelAnimationFrame(raf);
+                    $('measureIndicator').classList.remove('active');
+                    const e = (performance.now() - start) / 1000
+                      , err = Math.abs(e - target);
+                    g1score = scoreByError(err);
+                    records.push({
+                        target,
+                        actual: e,
+                        error: err,
+                        score: g1score
+                    });
+                    updateBestTime(err);
+                    saveBest();
+                    renderRecords();
+                    $('live').textContent = e.toFixed(3);
+                    $('measureIndicator').classList.remove('active');
+                    $('g1res').textContent = `오차 ${err.toFixed(3)}초`;
+                    $('g1res').classList.remove('hide');
+                    $('g1sub').textContent = 'RETRY로 다시 도전';
+                    $('g1btn').textContent = 'RETRY';
+                    state = 'done';
+                    setStatus('RECORDED')
+                }
+            }
+            function gradeByError(e) {
+                if (e <= 0.05)
+                    return '1등급';
+                if (e <= 0.10)
+                    return '2등급';
+                if (e <= 0.20)
+                    return '3등급';
+                if (e <= 0.35)
+                    return '4등급';
+                return '참가상'
+            }
+            function scoreByError(e) {
+                if (e <= 0.05)
+                    return 1000;
+                if (e <= 0.10)
+                    return 850;
+                if (e <= 0.20)
+                    return 700;
+                if (e <= 0.35)
+                    return 500;
+                return 0
+            }
+            function renderRecords() {
+                $('records').innerHTML = records.slice(-6).map(r => `<div class="record ${r.error <= .10 ? 'good' : ''}">오차 ${r.error.toFixed(3)}초<span class="detail">목표 ${r.target.toFixed(3)}초 · 기록 ${r.actual.toFixed(3)}초</span></div>`).join('')
+            }
+            function clearAllRecords() {
+                records = [];
+                reactionRecords = [];
+                g1score = 0;
+                g2score = 0;
+                saveBest();
+                renderRecords();
+                renderReactionRecords();
+                $('g1res').classList.add('hide');
+                $('g2res').classList.add('hide');
+                $('g1sub').textContent = '';
+                $('g2sub').textContent = '';
+                setStatus('RESET')
+            }
+            function init2() {
+                clearTimeout(timer);
+                $('reaction').textContent = 'READY';
+                $('reactionBox').className = 'reactionBox';
+                $('g2guide').textContent = '준비되면 START를 눌러주세요.';
+                $('g2btn').textContent = 'START';
+                $('g2res').classList.add('hide');
+                $('g2sub').textContent = '';
+                renderReactionRecords();
+                state = 'idle'
+            }
+            function renderReactionRecords() {
+                $('reactionRecords').innerHTML = reactionRecords.slice(-6).map(r => `<div class="record ${r <= .35 ? 'good' : ''}">${r.toFixed(3)}초</div>`).join('')
+            }
+            function start2() {
+                if (state === 'idle' || state === 'done' || state === 'false') {
+                    if (state !== 'idle') {
+                        init2()
+                    }
+                    state = 'wait';
+                    $('reaction').textContent = 'WAIT...';
+                    $('reactionBox').className = 'reactionBox';
+                    $('g2guide').textContent = '초록색이 될 때까지 기다리세요.';
+                    $('g2btn').textContent = 'STOP';
+                    setStatus('WAIT');
+                    timer = setTimeout( () => {
+                        state = 'go';
+                        start = performance.now();
+                        $('reaction').textContent = 'GO!';
+                        $('reactionBox').className = 'reactionBox go';
+                        $('g2guide').textContent = '지금!';
+                        setStatus('GO!')
+                    }
+                    , rand(1500, 9000))
+                } else if (state === 'wait') {
+                    clearTimeout(timer);
+                    state = 'false';
+                    $('reaction').textContent = 'TOO EARLY';
+                    $('reactionBox').className = 'reactionBox early';
+                    $('g2res').textContent = '너무 빨라요!';
+                    $('g2res').classList.remove('hide');
+                    $('g2sub').textContent = 'RETRY로 다시 도전';
+                    g2score = 0;
+                    $('g2btn').textContent = 'RETRY';
+                    setStatus('FAIL')
+                } else if (state === 'go') {
+                    const e = (performance.now() - start) / 1000;
+                    g2score = scoreByReaction(e);
+                    $('reaction').textContent = e.toFixed(3) + '초';
+                    $('reactionBox').className = 'reactionBox go';
+                    $('g2res').textContent = '반응속도';
+                    $('g2res').classList.remove('hide');
+                    $('g2sub').textContent = 'RETRY로 다시 도전';
+                    updateBestReaction(e);
+                    reactionRecords.push(e);
+                    saveBest();
+                    renderReactionRecords();
+                    $('g2btn').textContent = 'RETRY';
+                    state = 'done';
+                    setStatus('RECORDED')
+                }
+            }
+            function updateBestTime(err) {
+                if (bestTimeError === null || err < bestTimeError) {
+                    bestTimeError = err;
+                    saveBest();
+                    $('bestTime').textContent = err.toFixed(3) + '초';
+                    $('bestTime').classList.add('new');
+                    setTimeout( () => $('bestTime').classList.remove('new'), 700)
+                }
+            }
+            function updateBestReaction(sec) {
+                if (bestReaction === null || sec < bestReaction) {
+                    bestReaction = sec;
+                    saveBest();
+                    $('bestReaction').textContent = sec.toFixed(3) + '초';
+                    $('bestReaction').classList.add('new');
+                    setTimeout( () => $('bestReaction').classList.remove('new'), 700)
+                }
+            }
+            function scoreByReaction(e) {
+                if (e <= 0.25)
+                    return 1000;
+                if (e <= 0.35)
+                    return 850;
+                if (e <= 0.45)
+                    return 700;
+                if (e <= 0.60)
+                    return 500;
+                return 0
+            }
+            function final() {
+                const total = g1score + g2score
+                  , r = total >= 1850 ? '🥇 1ST' : total >= 1600 ? '🥈 2ND' : total >= 1300 ? '🥉 3RD' : total >= 900 ? '4TH' : 'PARTICIPATION';
+                $('g1').classList.remove('active');
+                $('g2').classList.remove('active');
+                $('final').classList.add('active');
+                $('rank').textContent = r;
+                $('total').textContent = `TOTAL ${total} POINTS`;
+                $('s1').textContent = g1score;
+                $('s2').textContent = g2score;
+                setStatus('COMPLETE')
+            }
+            $('g1btn').onclick = start1;
+            $('g2btn').onclick = start2;
+            $('nav1').onclick = () => nav(1);
+            $('nav2').onclick = () => nav(2);
+            $('reset').onclick = () => {
+                g1score = 0;
+                g2score = 0;
+                records = [];
+                reactionRecords = [];
+                nav(1)
+            }
+            ;
+            $('clearAllRecords').onclick = clearAllRecords;
+            $('resetToday').onclick = resetTodayBest;
+            showBestForGame(1);
+            document.addEventListener('keydown', e => {
+                if (e.code !== 'Space')
+                    return;
+                e.preventDefault();
+                if (game === 1)
+                    start1();
+                else if (game === 2)
+                    start2()
+            }
+            );
+            loadBest();
+            init1();
+        </script>
+    </body>
+</html>
