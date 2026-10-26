@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>타임 & 리액션 챌린지</title>
+        <title>TIME & REACTION CHALLENGE</title>
         <style>
             * {
                 box-sizing: border-box
@@ -47,18 +47,8 @@
             .header {
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
+                justify-content: flex-end;
                 gap: 20px
-            }
-
-            .brand {
-                font-size: 18px;
-                font-weight: 900;
-                letter-spacing: -.6px
-            }
-
-            .brand span {
-                color: var(--green)
             }
 
             .status {
@@ -582,9 +572,6 @@
         <main class="app">
             <header>
                 <div class="header">
-                    <div class="brand">
-                        TIME & REACTION CHALLENGE
-                    </div>
                     <div class="status" id="status">READY</div>
                 </div>
                 <div class="hero">
@@ -779,14 +766,12 @@
                 raf = requestAnimationFrame(loop1)
             }
             function start1() {
-                if (state === 'idle' || state === 'done') {
-                    if (state === 'done') {
-                        target = Number(rand(2, 9).toFixed(3));
-                        $('target').textContent = target.toFixed(3);
-                        $('g1res').classList.add('hide');
-                        $('g1sub').textContent = '';
-                        $('live').textContent = '0.000'
-                    }
+                if (state === 'done') {
+                    // RETRY는 새 라운드 준비만 하고, 실제 시작은 START를 다시 눌러야 함
+                    init1();
+                    return;
+                }
+                if (state === 'idle') {
                     state = 'run';
                     start = performance.now();
                     $('g1btn').textContent = 'STOP';
@@ -873,10 +858,12 @@
                 $('reactionRecords').innerHTML = reactionRecords.slice(-6).map(r => `<div class="record ${r <= .35 ? 'good' : ''}">${r.toFixed(3)}초</div>`).join('')
             }
             function start2() {
-                if (state === 'idle' || state === 'done' || state === 'false') {
-                    if (state !== 'idle') {
-                        init2()
-                    }
+                if (state === 'done' || state === 'false') {
+                    // RETRY는 새 라운드 준비만 하고, 실제 시작은 START를 다시 눌러야 함
+                    init2();
+                    return;
+                }
+                if (state === 'idle') {
                     state = 'wait';
                     $('reaction').textContent = 'WAIT...';
                     $('reactionBox').className = 'reactionBox';
